@@ -1,0 +1,1737 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Personal Task Manager</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            font-weight: 300;
+        }
+
+        .header p {
+            opacity: 0.9;
+            font-size: 1.1rem;
+        }
+
+        .progress-section {
+            background: rgba(255,255,255,0.1);
+            padding: 15px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .progress-bar {
+            flex: 1;
+            height: 8px;
+            background: rgba(255,255,255,0.2);
+            border-radius: 10px;
+            margin: 0 15px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #00f2fe, #4facfe);
+            border-radius: 10px;
+            transition: width 0.3s ease;
+            width: 0%;
+        }
+
+        .progress-text {
+            color: white;
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+
+        .input-section {
+            padding: 30px;
+            background: #f8f9fa;
+            border-bottom: 1px solid #e9ecef;
+        }
+
+        .input-container {
+            display: grid;
+            grid-template-columns: 1fr auto auto;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+
+        .ai-btn {
+            padding: 12px;
+            background: linear-gradient(135deg, #ff6b6b 0%, #ee5a24 100%);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            font-size: 1.2rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            width: 45px;
+            height: 45px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .ai-btn:hover {
+            transform: translateY(-2px) scale(1.05);
+            box-shadow: 0 8px 20px rgba(255, 107, 107, 0.3);
+        }
+
+        .ai-suggestions {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 15px;
+            padding: 15px;
+            margin-bottom: 15px;
+            color: white;
+        }
+
+        .suggestion-header {
+            font-weight: 600;
+            margin-bottom: 10px;
+            font-size: 0.9rem;
+        }
+
+        .suggestions-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .suggestion-chip {
+            background: rgba(255,255,255,0.2);
+            color: white;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 1px solid rgba(255,255,255,0.3);
+        }
+
+        .suggestion-chip:hover {
+            background: rgba(255,255,255,0.3);
+            transform: translateY(-1px);
+        }
+
+        .input-row-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 10px;
+        }
+
+        #taskInput {
+            grid-column: 1 / -1;
+            padding: 15px 20px;
+            border: 2px solid #e9ecef;
+            border-radius: 15px;
+            font-size: 1rem;
+            outline: none;
+            transition: all 0.3s ease;
+        }
+
+        .form-select {
+            padding: 12px 15px;
+            border: 2px solid #e9ecef;
+            border-radius: 15px;
+            font-size: 0.9rem;
+            outline: none;
+            background: white;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .form-select:focus {
+            border-color: #4facfe;
+            box-shadow: 0 0 0 3px rgba(79, 172, 254, 0.1);
+        }
+
+        #taskInput:focus {
+            border-color: #4facfe;
+            box-shadow: 0 0 0 3px rgba(79, 172, 254, 0.1);
+        }
+
+        #addBtn {
+            padding: 15px 30px;
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            color: white;
+            border: none;
+            border-radius: 50px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            min-width: 120px;
+        }
+
+        #addBtn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(79, 172, 254, 0.3);
+        }
+
+        #addBtn:active {
+            transform: translateY(0);
+        }
+
+        .tasks-section {
+            padding: 30px;
+        }
+
+        .tasks-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .tasks-header h2 {
+            color: #333;
+            font-size: 1.5rem;
+            font-weight: 600;
+        }
+
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .ai-chat-toggle {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .ai-chat-toggle:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
+        }
+
+        .ai-chat-panel {
+            background: white;
+            border: 2px solid #e9ecef;
+            border-radius: 15px;
+            margin-bottom: 25px;
+            overflow: hidden;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+        }
+
+        .chat-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 15px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-weight: 600;
+        }
+
+        .close-chat {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 1.5rem;
+            cursor: pointer;
+            padding: 0;
+            width: 25px;
+            height: 25px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            transition: background 0.3s ease;
+        }
+
+        .close-chat:hover {
+            background: rgba(255,255,255,0.2);
+        }
+
+        .chat-messages {
+            max-height: 300px;
+            overflow-y: auto;
+            padding: 20px;
+            background: #f8f9fa;
+        }
+
+        .ai-message, .user-message {
+            margin-bottom: 15px;
+            padding: 12px 16px;
+            border-radius: 15px;
+            max-width: 80%;
+            line-height: 1.5;
+        }
+
+        .ai-message {
+            background: #e3f2fd;
+            color: #1976d2;
+            margin-right: auto;
+        }
+
+        .user-message {
+            background: #4facfe;
+            color: white;
+            margin-left: auto;
+        }
+
+        .ai-message ul {
+            margin: 10px 0;
+            padding-left: 20px;
+        }
+
+        .ai-message li {
+            margin: 5px 0;
+        }
+
+        .typing-indicator {
+            animation: pulse 1.5s infinite;
+            font-style: italic;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.6; }
+        }
+
+        .chat-input-container {
+            padding: 15px 20px;
+            background: white;
+            border-top: 1px solid #e9ecef;
+            display: flex;
+            gap: 10px;
+        }
+
+        #chatInput {
+            flex: 1;
+            padding: 10px 15px;
+            border: 2px solid #e9ecef;
+            border-radius: 25px;
+            outline: none;
+            font-size: 0.9rem;
+        }
+
+        #chatInput:focus {
+            border-color: #4facfe;
+        }
+
+        #sendChatBtn {
+            background: #4facfe;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        #sendChatBtn:hover {
+            background: #3d8bfe;
+            transform: translateY(-1px);
+        }
+
+        .task-count {
+            background: #e3f2fd;
+            color: #1976d2;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            font-weight: 600;
+        }
+
+        .filter-section {
+            margin-bottom: 25px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .filter-chip {
+            padding: 8px 16px;
+            border: 2px solid #e9ecef;
+            border-radius: 25px;
+            background: white;
+            color: #6c757d;
+            cursor: pointer;
+            font-size: 0.9rem;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+        .filter-chip:hover {
+            border-color: #4facfe;
+            color: #4facfe;
+        }
+
+        .filter-chip.active {
+            background: #4facfe;
+            border-color: #4facfe;
+            color: white;
+        }
+
+        .tasks-list {
+            list-style: none;
+        }
+
+        .task-item {
+            background: white;
+            border: 1px solid #e9ecef;
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: flex-start;
+            gap: 15px;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            border-left: 4px solid transparent;
+        }
+
+        .task-item:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+            border-color: #4facfe;
+        }
+
+        .task-item.completed {
+            opacity: 0.7;
+            background: #f8f9fa;
+        }
+
+        .task-item.completed .task-text {
+            text-decoration: line-through;
+            color: #6c757d;
+        }
+
+        .task-item.priority-high {
+            border-left-color: #ff4757;
+        }
+
+        .task-item.priority-medium {
+            border-left-color: #ffa502;
+        }
+
+        .task-item.priority-low {
+            border-left-color: #2ed573;
+        }
+
+        .task-checkbox {
+            width: 20px;
+            height: 20px;
+            border: 2px solid #4facfe;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+            flex-shrink: 0;
+            margin-top: 2px;
+        }
+
+        .task-checkbox:hover {
+            background: #4facfe;
+            color: white;
+        }
+
+        .task-checkbox.checked {
+            background: #4facfe;
+            color: white;
+        }
+
+        .task-content {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .task-text {
+            font-size: 1.1rem;
+            color: #333;
+            word-break: break-word;
+            margin-bottom: 8px;
+        }
+
+        .task-meta {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            font-size: 0.85rem;
+            color: #6c757d;
+        }
+
+        .task-category {
+            background: #e3f2fd;
+            color: #1976d2;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-weight: 500;
+        }
+
+        .task-due {
+            color: #666;
+        }
+
+        .task-due.overdue {
+            color: #ff4757;
+            font-weight: 600;
+        }
+
+        .task-priority {
+            font-weight: 600;
+        }
+
+        .task-priority.high {
+            color: #ff4757;
+        }
+
+        .task-priority.medium {
+            color: #ffa502;
+        }
+
+        .task-priority.low {
+            color: #2ed573;
+        }
+
+        .task-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .action-btn {
+            border: none;
+            border-radius: 50%;
+            width: 35px;
+            height: 35px;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+        }
+
+        .edit-btn {
+            background: #4facfe;
+        }
+
+        .edit-btn:hover {
+            background: #3d8bfe;
+            transform: scale(1.1);
+        }
+
+        .delete-btn {
+            background: #ff4757;
+        }
+
+        .delete-btn:hover {
+            background: #ff3742;
+            transform: scale(1.1);
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #6c757d;
+        }
+
+        .empty-state img {
+            width: 120px;
+            height: 120px;
+            margin-bottom: 20px;
+            opacity: 0.5;
+        }
+
+        .empty-state h3 {
+            font-size: 1.5rem;
+            margin-bottom: 10px;
+            color: #495057;
+        }
+
+        .empty-state p {
+            font-size: 1rem;
+            line-height: 1.6;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .container {
+                margin: 10px;
+                border-radius: 15px;
+            }
+
+            .header h1 {
+                font-size: 2rem;
+            }
+
+            .input-container {
+                grid-template-columns: 1fr;
+                gap: 10px;
+            }
+
+            .input-row-2 {
+                grid-template-columns: 1fr;
+                gap: 10px;
+            }
+
+            #addBtn {
+                min-width: auto;
+            }
+
+            .input-section, .tasks-section {
+                padding: 20px;
+            }
+
+            .progress-section {
+                padding: 15px 20px;
+            }
+
+            .task-item {
+                padding: 15px;
+            }
+
+            .tasks-header {
+                flex-direction: column;
+                gap: 10px;
+                align-items: flex-start;
+            }
+
+            .filter-section {
+                justify-content: center;
+            }
+
+            .task-meta {
+                flex-direction: column;
+                gap: 5px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            body {
+                padding: 10px;
+            }
+
+            .header {
+                padding: 20px;
+            }
+
+            .header h1 {
+                font-size: 1.8rem;
+            }
+
+            .task-text {
+                font-size: 1rem;
+            }
+        }
+
+        /* Animation for new tasks */
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .task-item.new-task {
+            animation: slideIn 0.3s ease-out;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Personal Task Manager</h1>
+            <p>Stay organized and get things done!</p>
+        </div>
+
+        <div class="progress-section">
+            <span class="progress-text" id="progressText">0% Complete</span>
+            <div class="progress-bar">
+                <div class="progress-fill" id="progressFill"></div>
+            </div>
+            <span class="progress-text" id="completedCount">0/0</span>
+        </div>
+
+        <div class="input-section">
+            <div class="input-container">
+                <input type="text" id="taskInput" placeholder="Try: 'Call mom tomorrow at 5pm' or 'Buy groceries this weekend'" maxlength="200">
+                <button id="aiCategorizeBtn" class="ai-btn" title="Auto-categorize with AI">🤖</button>
+                <button id="nlpParseBtn" class="ai-btn" title="Parse natural language">🧠</button>
+            </div>
+            <div class="ai-suggestions" id="aiSuggestions" style="display: none;">
+                <div class="suggestion-header">💡 AI Suggestions:</div>
+                <div class="suggestions-list" id="suggestionsList"></div>
+            </div>
+            <div class="input-row-2">
+                <input type="date" id="dueDateInput" class="form-select">
+                <select id="categorySelect" class="form-select">
+                    <option value="personal">Personal</option>
+                    <option value="work">Work</option>
+                    <option value="shopping">Shopping</option>
+                    <option value="health">Health</option>
+                    <option value="study">Study</option>
+                </select>
+                <select id="prioritySelect" class="form-select">
+                    <option value="medium">Medium</option>
+                    <option value="high">High</option>
+                    <option value="low">Low</option>
+                </select>
+            </div>
+            <button id="addBtn">Add Task</button>
+        </div>
+
+        <div class="tasks-section">
+            <div class="tasks-header">
+                <h2>Your Tasks</h2>
+                <div class="header-actions">
+                    <button id="aiChatBtn" class="ai-chat-toggle" title="AI Assistant">💬 AI Assistant</button>
+                    <span class="task-count" id="taskCount">0 tasks</span>
+                </div>
+            </div>
+            
+            <div class="ai-chat-panel" id="aiChatPanel" style="display: none;">
+                <div class="chat-header">
+                    <span>🤖 AI Task Assistant</span>
+                    <button id="closeChatBtn" class="close-chat">×</button>
+                </div>
+                <div class="chat-messages" id="chatMessages">
+                    <div class="ai-message">
+                        Hi! I'm your AI assistant. I can help you:
+                        <ul>
+                            <li>📝 Organize and categorize tasks</li>
+                            <li>⏰ Parse natural language dates</li>
+                            <li>💡 Suggest task improvements</li>
+                            <li>📊 Analyze your productivity</li>
+                        </ul>
+                        Try typing something like "Add buy milk tomorrow" or ask me anything!
+                    </div>
+                </div>
+                <div class="chat-input-container">
+                    <input type="text" id="chatInput" placeholder="Ask me anything about your tasks...">
+                    <button id="sendChatBtn">Send</button>
+                </div>
+            </div>
+            
+            <div class="filter-section">
+                <div class="filter-chip active" data-filter="all">All</div>
+                <div class="filter-chip" data-filter="active">Active</div>
+                <div class="filter-chip" data-filter="completed">Completed</div>
+                <div class="filter-chip" data-filter="personal">Personal</div>
+                <div class="filter-chip" data-filter="work">Work</div>
+                <div class="filter-chip" data-filter="shopping">Shopping</div>
+                <div class="filter-chip" data-filter="health">Health</div>
+                <div class="filter-chip" data-filter="study">Study</div>
+            </div>
+            
+            <ul class="tasks-list" id="tasksList">
+                <!-- Tasks will be dynamically added here -->
+            </ul>
+
+            <div class="empty-state" id="emptyState">
+                <div style="font-size: 4rem; margin-bottom: 20px;">📝</div>
+                <h3>No tasks yet!</h3>
+                <p>Add your first task above to get started.<br>Stay organized and productive!</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        class TaskManager {
+            constructor() {
+                this.tasks = this.loadTasks();
+                this.currentFilter = 'all';
+                this.editingTaskId = null;
+                this.taskHistory = this.loadTaskHistory();
+                
+                // Get DOM elements
+                this.taskInput = document.getElementById('taskInput');
+                this.dueDateInput = document.getElementById('dueDateInput');
+                this.categorySelect = document.getElementById('categorySelect');
+                this.prioritySelect = document.getElementById('prioritySelect');
+                this.addBtn = document.getElementById('addBtn');
+                this.tasksList = document.getElementById('tasksList');
+                this.taskCount = document.getElementById('taskCount');
+                this.emptyState = document.getElementById('emptyState');
+                this.progressFill = document.getElementById('progressFill');
+                this.progressText = document.getElementById('progressText');
+                this.completedCount = document.getElementById('completedCount');
+                
+                // AI elements
+                this.aiCategorizeBtn = document.getElementById('aiCategorizeBtn');
+                this.nlpParseBtn = document.getElementById('nlpParseBtn');
+                this.aiSuggestions = document.getElementById('aiSuggestions');
+                this.suggestionsList = document.getElementById('suggestionsList');
+                this.aiChatBtn = document.getElementById('aiChatBtn');
+                this.aiChatPanel = document.getElementById('aiChatPanel');
+                this.closeChatBtn = document.getElementById('closeChatBtn');
+                this.chatMessages = document.getElementById('chatMessages');
+                this.chatInput = document.getElementById('chatInput');
+                this.sendChatBtn = document.getElementById('sendChatBtn');
+                
+                this.init();
+            }
+
+            init() {
+                // Event listeners
+                this.addBtn.addEventListener('click', () => this.addTask());
+                this.taskInput.addEventListener('keypress', (e) => {
+                    if (e.key === 'Enter') {
+                        this.addTask();
+                    }
+                });
+
+                // AI event listeners
+                this.aiCategorizeBtn.addEventListener('click', () => this.aiCategorizeTask());
+                this.nlpParseBtn.addEventListener('click', () => this.parseNaturalLanguage());
+                this.aiChatBtn.addEventListener('click', () => this.toggleAIChat());
+                this.closeChatBtn.addEventListener('click', () => this.toggleAIChat());
+                this.sendChatBtn.addEventListener('click', () => this.sendChatMessage());
+                this.chatInput.addEventListener('keypress', (e) => {
+                    if (e.key === 'Enter') {
+                        this.sendChatMessage();
+                    }
+                });
+
+                // Task input suggestions
+                this.taskInput.addEventListener('input', () => this.showSmartSuggestions());
+
+                // Filter chips
+                document.querySelectorAll('.filter-chip').forEach(chip => {
+                    chip.addEventListener('click', (e) => {
+                        this.setFilter(e.target.dataset.filter);
+                    });
+                });
+
+                // Initial render
+                this.renderTasks();
+                this.updateStats();
+            }
+
+            addTask() {
+                const taskText = this.taskInput.value.trim();
+                
+                if (taskText === '') {
+                    this.taskInput.focus();
+                    return;
+                }
+
+                if (this.editingTaskId) {
+                    // Update existing task
+                    const task = this.tasks.find(t => t.id === this.editingTaskId);
+                    if (task) {
+                        task.text = taskText;
+                        task.dueDate = this.dueDateInput.value;
+                        task.category = this.categorySelect.value;
+                        task.priority = this.prioritySelect.value;
+                    }
+                    this.editingTaskId = null;
+                    this.addBtn.textContent = 'Add Task';
+                } else {
+                    // Create new task
+                    const task = {
+                        id: Date.now(),
+                        text: taskText,
+                        completed: false,
+                        dueDate: this.dueDateInput.value,
+                        category: this.categorySelect.value,
+                        priority: this.prioritySelect.value,
+                        createdAt: new Date().toISOString()
+                    };
+                    this.tasks.unshift(task);
+                }
+
+                this.saveTasks();
+                this.renderTasks();
+                this.updateStats();
+                this.clearForm();
+            }
+
+            clearForm() {
+                this.taskInput.value = '';
+                this.dueDateInput.value = '';
+                this.categorySelect.value = 'personal';
+                this.prioritySelect.value = 'medium';
+                this.taskInput.focus();
+            }
+
+            toggleTask(taskId) {
+                const task = this.tasks.find(t => t.id === taskId);
+                if (task) {
+                    task.completed = !task.completed;
+                    this.saveTasks();
+                    this.renderTasks();
+                    this.updateStats();
+                }
+            }
+
+            editTask(taskId) {
+                const task = this.tasks.find(t => t.id === taskId);
+                if (task) {
+                    this.taskInput.value = task.text;
+                    this.dueDateInput.value = task.dueDate || '';
+                    this.categorySelect.value = task.category || 'personal';
+                    this.prioritySelect.value = task.priority || 'medium';
+                    this.editingTaskId = taskId;
+                    this.addBtn.textContent = 'Update Task';
+                    this.taskInput.focus();
+                }
+            }
+
+            deleteTask(taskId) {
+                this.tasks = this.tasks.filter(task => task.id !== taskId);
+                this.saveTasks();
+                this.renderTasks();
+                this.updateStats();
+            }
+
+            setFilter(filter) {
+                this.currentFilter = filter;
+                
+                // Update active filter chip
+                document.querySelectorAll('.filter-chip').forEach(chip => {
+                    chip.classList.remove('active');
+                });
+                document.querySelector(`[data-filter="${filter}"]`).classList.add('active');
+                
+                this.renderTasks();
+            }
+
+            getFilteredTasks() {
+                return this.tasks.filter(task => {
+                    switch (this.currentFilter) {
+                        case 'active':
+                            return !task.completed;
+                        case 'completed':
+                            return task.completed;
+                        case 'personal':
+                        case 'work':
+                        case 'shopping':
+                        case 'health':
+                        case 'study':
+                            return task.category === this.currentFilter;
+                        default:
+                            return true;
+                    }
+                });
+            }
+
+            renderTasks() {
+                const filteredTasks = this.getFilteredTasks();
+                this.tasksList.innerHTML = '';
+
+                if (filteredTasks.length === 0) {
+                    this.emptyState.style.display = 'block';
+                    return;
+                }
+
+                this.emptyState.style.display = 'none';
+
+                filteredTasks.forEach(task => {
+                    const taskItem = document.createElement('li');
+                    taskItem.className = `task-item priority-${task.priority || 'medium'}`;
+                    if (task.completed) {
+                        taskItem.classList.add('completed');
+                    }
+
+                    const dueDate = task.dueDate ? new Date(task.dueDate) : null;
+                    const isOverdue = dueDate && dueDate < new Date() && !task.completed;
+                    
+                    taskItem.innerHTML = `
+                        <div class="task-checkbox ${task.completed ? 'checked' : ''}" 
+                             onclick="taskManager.toggleTask(${task.id})">
+                            ${task.completed ? '✓' : ''}
+                        </div>
+                        <div class="task-content">
+                            <div class="task-text">${this.escapeHtml(task.text)}</div>
+                            <div class="task-meta">
+                                <span class="task-category">${task.category || 'personal'}</span>
+                                ${task.dueDate ? `<span class="task-due ${isOverdue ? 'overdue' : ''}">
+                                    Due: ${this.formatDate(task.dueDate)}
+                                </span>` : ''}
+                                <span class="task-priority ${task.priority || 'medium'}">
+                                    ${(task.priority || 'medium').toUpperCase()}
+                                </span>
+                            </div>
+                        </div>
+                        <div class="task-actions">
+                            <button class="action-btn edit-btn" onclick="taskManager.editTask(${task.id})" title="Edit task">
+                                ✏️
+                            </button>
+                            <button class="action-btn delete-btn" onclick="taskManager.deleteTask(${task.id})" title="Delete task">
+                                🗑️
+                            </button>
+                        </div>
+                    `;
+                    this.tasksList.appendChild(taskItem);
+                });
+            }
+
+            updateStats() {
+                const totalTasks = this.tasks.length;
+                const completedTasks = this.tasks.filter(t => t.completed).length;
+                const percentage = totalTasks > 0 ? Math.round((completedTasks / totalTasks) * 100) : 0;
+
+                this.taskCount.textContent = `${totalTasks} ${totalTasks === 1 ? 'task' : 'tasks'}`;
+                this.progressFill.style.width = `${percentage}%`;
+                this.progressText.textContent = `${percentage}% Complete`;
+                this.completedCount.textContent = `${completedTasks}/${totalTasks}`;
+            }
+
+            formatDate(dateString) {
+                const date = new Date(dateString);
+                const today = new Date();
+                const tomorrow = new Date(today);
+                tomorrow.setDate(tomorrow.getDate() + 1);
+
+                if (date.toDateString() === today.toDateString()) {
+                    return 'Today';
+                } else if (date.toDateString() === tomorrow.toDateString()) {
+                    return 'Tomorrow';
+                } else {
+                    return date.toLocaleDateString();
+                }
+            }
+
+            loadTasks() {
+                try {
+                    const saved = localStorage.getItem('personalTaskManager');
+                    return saved ? JSON.parse(saved) : [];
+                } catch (error) {
+                    console.error('Error loading tasks:', error);
+                    return [];
+                }
+            }
+
+            saveTasks() {
+                try {
+                    localStorage.setItem('personalTaskManager', JSON.stringify(this.tasks));
+                    this.saveTaskHistory();
+                } catch (error) {
+                    console.error('Error saving tasks:', error);
+                }
+            }
+
+            escapeHtml(text) {
+                const div = document.createElement('div');
+                div.textContent = text;
+                return div.innerHTML;
+            }
+
+            // AI Features
+            aiCategorizeTask() {
+                const taskText = this.taskInput.value.trim();
+                if (!taskText) return;
+
+                // Simulate AI categorization (in real app, call AI API)
+                const category = this.predictCategory(taskText);
+                this.categorySelect.value = category;
+                
+                // Show feedback
+                this.showAIFeedback(`🤖 Categorized as "${category}" based on task content!`);
+            }
+
+            predictCategory(text) {
+                const lowerText = text.toLowerCase();
+                
+                // Simple rule-based categorization (replace with AI API)
+                if (lowerText.includes('buy') || lowerText.includes('shop') || lowerText.includes('grocery')) {
+                    return 'shopping';
+                } else if (lowerText.includes('work') || lowerText.includes('meeting') || lowerText.includes('report') || lowerText.includes('email')) {
+                    return 'work';
+                } else if (lowerText.includes('exercise') || lowerText.includes('gym') || lowerText.includes('doctor') || lowerText.includes('health')) {
+                    return 'health';
+                } else if (lowerText.includes('study') || lowerText.includes('learn') || lowerText.includes('read') || lowerText.includes('course')) {
+                    return 'study';
+                } else {
+                    return 'personal';
+                }
+            }
+
+            parseNaturalLanguage() {
+                const taskText = this.taskInput.value.trim();
+                if (!taskText) return;
+
+                const parsed = this.extractDateAndTime(taskText);
+                
+                if (parsed.date) {
+                    this.dueDateInput.value = parsed.date;
+                }
+                
+                if (parsed.cleanText !== taskText) {
+                    this.taskInput.value = parsed.cleanText;
+                }
+
+                if (parsed.priority) {
+                    this.prioritySelect.value = parsed.priority;
+                }
+
+                this.showAIFeedback(`🧠 Parsed: ${parsed.feedback}`);
+            }
+
+            extractDateAndTime(text) {
+                const lowerText = text.toLowerCase();
+                const today = new Date();
+                const tomorrow = new Date(today);
+                tomorrow.setDate(tomorrow.getDate() + 1);
+                
+                let date = null;
+                let cleanText = text;
+                let priority = null;
+                let feedback = '';
+
+                // Extract dates
+                if (lowerText.includes('today')) {
+                    date = today.toISOString().split('T')[0];
+                    cleanText = text.replace(/\s*today\s*/gi, ' ').trim();
+                    feedback += 'Set for today. ';
+                } else if (lowerText.includes('tomorrow')) {
+                    date = tomorrow.toISOString().split('T')[0];
+                    cleanText = text.replace(/\s*tomorrow\s*/gi, ' ').trim();
+                    feedback += 'Set for tomorrow. ';
+                } else if (lowerText.includes('this weekend')) {
+                    const saturday = new Date(today);
+                    saturday.setDate(today.getDate() + (6 - today.getDay()));
+                    date = saturday.toISOString().split('T')[0];
+                    cleanText = text.replace(/\s*this weekend\s*/gi, ' ').trim();
+                    feedback += 'Set for this weekend. ';
+                }
+
+                // Extract priority
+                if (lowerText.includes('urgent') || lowerText.includes('important') || lowerText.includes('asap')) {
+                    priority = 'high';
+                    cleanText = cleanText.replace(/\s*(urgent|important|asap)\s*/gi, ' ').trim();
+                    feedback += 'Set as high priority. ';
+                }
+
+                return { date, cleanText, priority, feedback: feedback || 'No special formatting detected.' };
+            }
+
+            showSmartSuggestions() {
+                const input = this.taskInput.value.trim().toLowerCase();
+                if (input.length < 3) {
+                    this.aiSuggestions.style.display = 'none';
+                    return;
+                }
+
+                const suggestions = this.generateSuggestions(input);
+                if (suggestions.length > 0) {
+                    this.displaySuggestions(suggestions);
+                } else {
+                    this.aiSuggestions.style.display = 'none';
+                }
+            }
+
+            generateSuggestions(input) {
+                // Common task patterns and suggestions
+                const patterns = [
+                    { keywords: ['buy', 'shop'], suggestions: ['Buy groceries', 'Buy milk', 'Shop for clothes'] },
+                    { keywords: ['call', 'phone'], suggestions: ['Call mom', 'Call doctor', 'Call bank'] },
+                    { keywords: ['meeting', 'meet'], suggestions: ['Team meeting', 'Client meeting', 'Project review'] },
+                    { keywords: ['exercise', 'gym'], suggestions: ['Go to gym', 'Morning run', 'Yoga session'] },
+                    { keywords: ['read', 'book'], suggestions: ['Read book', 'Read articles', 'Study notes'] },
+                    { keywords: ['clean'], suggestions: ['Clean house', 'Clean car', 'Organize desk'] },
+                    { keywords: ['pay', 'bill'], suggestions: ['Pay bills', 'Pay rent', 'Pay utilities'] }
+                ];
+
+                const suggestions = [];
+                patterns.forEach(pattern => {
+                    if (pattern.keywords.some(keyword => input.includes(keyword))) {
+                        suggestions.push(...pattern.suggestions.filter(s => 
+                            s.toLowerCase().includes(input) && s.toLowerCase() !== input
+                        ));
+                    }
+                });
+
+                // Add suggestions from task history
+                const historySuggestions = this.taskHistory
+                    .filter(task => task.toLowerCase().includes(input) && task.toLowerCase() !== input)
+                    .slice(0, 3);
+
+                return [...new Set([...suggestions.slice(0, 4), ...historySuggestions])].slice(0, 6);
+            }
+
+            displaySuggestions(suggestions) {
+                this.suggestionsList.innerHTML = '';
+                suggestions.forEach(suggestion => {
+                    const chip = document.createElement('div');
+                    chip.className = 'suggestion-chip';
+                    chip.textContent = suggestion;
+                    chip.addEventListener('click', () => {
+                        this.taskInput.value = suggestion;
+                        this.aiSuggestions.style.display = 'none';
+                        this.taskInput.focus();
+                    });
+                    this.suggestionsList.appendChild(chip);
+                });
+                this.aiSuggestions.style.display = 'block';
+            }
+
+            toggleAIChat() {
+                const isVisible = this.aiChatPanel.style.display !== 'none';
+                this.aiChatPanel.style.display = isVisible ? 'none' : 'block';
+                if (!isVisible) {
+                    this.chatInput.focus();
+                }
+            }
+
+            sendChatMessage() {
+                const message = this.chatInput.value.trim();
+                if (!message) return;
+
+                this.addChatMessage(message, 'user');
+                this.chatInput.value = '';
+
+                // Show typing indicator
+                const typingDiv = document.createElement('div');
+                typingDiv.className = 'ai-message typing-indicator';
+                typingDiv.innerHTML = '🤖 AI is thinking...';
+                this.chatMessages.appendChild(typingDiv);
+                this.chatMessages.scrollTop = this.chatMessages.scrollHeight;
+
+                // Simulate AI response (replace with real AI API)
+                setTimeout(() => {
+                    typingDiv.remove();
+                    const response = this.generateAIResponse(message);
+                    this.addChatMessage(response, 'ai');
+                }, 1500);
+            }
+
+            addChatMessage(message, sender) {
+                const messageDiv = document.createElement('div');
+                messageDiv.className = sender === 'user' ? 'user-message' : 'ai-message';
+                messageDiv.textContent = message;
+                this.chatMessages.appendChild(messageDiv);
+                this.chatMessages.scrollTop = this.chatMessages.scrollHeight;
+            }
+
+            generateAIResponse(message) {
+                const lowerMessage = message.toLowerCase();
+                
+                // Handle task creation requests
+                if (lowerMessage.includes('add') && (lowerMessage.includes('task') || lowerMessage.includes('todo'))) {
+                    const taskMatch = message.match(/add\s+(?:task\s+)?["']?([^"']+)["']?/i);
+                    if (taskMatch) {
+                        const taskText = taskMatch[1];
+                        this.taskInput.value = taskText;
+                        return `✅ I've added "${taskText}" to your task input field! You can modify the details and click "Add Task" to save it.`;
+                    }
+                    return "📝 I can help you add tasks! Try saying something like 'add task buy groceries' or 'add call mom tomorrow'.";
+                }
+
+                // Handle productivity analysis
+                if (lowerMessage.includes('productivity') || lowerMessage.includes('progress') || lowerMessage.includes('stats') || lowerMessage.includes('how am i doing')) {
+                    const completed = this.tasks.filter(t => t.completed).length;
+                    const total = this.tasks.length;
+                    const percentage = total > 0 ? Math.round((completed / total) * 100) : 0;
+                    const overdue = this.tasks.filter(t => !t.completed && t.dueDate && t.dueDate < new Date().toISOString().split('T')[0]).length;
+                    
+                    let analysis = `📊 **Your Productivity Analysis:**\n\n`;
+                    analysis += `• Tasks completed: ${completed}/${total} (${percentage}%)\n`;
+                    analysis += `• Overdue tasks: ${overdue}\n`;
+                    analysis += `• Most used category: ${this.getMostUsedCategory()}\n\n`;
+                    analysis += `💡 **Tip:** ${this.getProductivityTip()}`;
+                    
+                    return analysis;
+                }
+
+                // Handle task management questions
+                if (lowerMessage.includes('how many') || lowerMessage.includes('count')) {
+                    const total = this.tasks.length;
+                    const completed = this.tasks.filter(t => t.completed).length;
+                    const pending = total - completed;
+                    return `📋 You have **${total} total tasks**: ${completed} completed and ${pending} still pending. ${pending > 0 ? 'Keep going!' : 'All done! 🎉'}`;
+                }
+
+                // Handle categorization help
+                if (lowerMessage.includes('categorize') || lowerMessage.includes('organize') || lowerMessage.includes('category')) {
+                    return "🏷️ I can auto-categorize your tasks! Just type a task in the input field and click the 🤖 button. I recognize keywords like:\n• 'buy', 'shop' → Shopping\n• 'meeting', 'work' → Work\n• 'exercise', 'gym' → Health\n• 'study', 'learn' → Study";
+                }
+
+                // Handle time/date parsing
+                if (lowerMessage.includes('date') || lowerMessage.includes('time') || lowerMessage.includes('when') || lowerMessage.includes('tomorrow') || lowerMessage.includes('today')) {
+                    return "⏰ I can parse natural language dates! Try typing tasks like:\n• 'Call mom tomorrow'\n• 'Meeting today at 3pm'\n• 'Buy groceries this weekend'\n\nThen click the 🧠 button to extract the date automatically!";
+                }
+
+                // Handle general help
+                if (lowerMessage.includes('help') || lowerMessage.includes('what can you do') || lowerMessage.includes('features')) {
+                    return "🤖 **I'm your AI Task Assistant!** Here's what I can do:\n\n📝 **Smart Task Management:**\n• Auto-categorize tasks\n• Parse natural language dates\n• Suggest similar tasks\n\n📊 **Analytics & Insights:**\n• Track your productivity\n• Identify patterns\n• Give personalized tips\n\n💬 **Conversational Help:**\n• Answer questions about your tasks\n• Provide productivity advice\n• Help organize your workflow\n\nTry asking me: 'How am I doing?' or 'Add task buy milk tomorrow'!";
+                }
+
+                // Handle greetings
+                if (lowerMessage.includes('hello') || lowerMessage.includes('hi') || lowerMessage.includes('hey')) {
+                    const timeOfDay = new Date().getHours() < 12 ? 'morning' : new Date().getHours() < 18 ? 'afternoon' : 'evening';
+                    return `👋 Good ${timeOfDay}! I'm your AI task assistant. I can help you manage tasks, analyze your productivity, and keep you organized. What would you like to work on today?`;
+                }
+
+                // Handle thanks
+                if (lowerMessage.includes('thank') || lowerMessage.includes('thanks')) {
+                    return "😊 You're welcome! I'm here to help you stay productive and organized. Is there anything else you'd like to know about your tasks?";
+                }
+
+                // Default intelligent responses
+                const responses = [
+                    "🤔 That's interesting! I can help you with task management, productivity analysis, or organizing your workflow. What specific area would you like help with?",
+                    "💡 I'm here to make your task management smarter! Try asking me to analyze your productivity, categorize a task, or help with scheduling.",
+                    "🎯 I can assist with various aspects of task management. Would you like me to help organize your tasks, provide productivity insights, or parse some natural language dates?",
+                    "📈 I'm learning about your task patterns to provide better suggestions. Feel free to ask me about your productivity stats or how to improve your workflow!"
+                ];
+
+                return responses[Math.floor(Math.random() * responses.length)];
+            }
+
+            getProductivityTip() {
+                const tips = [
+                    "Try breaking large tasks into smaller ones!",
+                    "Consider setting due dates for better time management.",
+                    "High priority tasks should be tackled first thing in the morning.",
+                    "Don't forget to celebrate completing tasks - you're doing great!",
+                    "Try the Pomodoro technique: 25 minutes focused work, 5 minute break."
+                ];
+                return tips[Math.floor(Math.random() * tips.length)];
+            }
+
+            getMostUsedCategory() {
+                if (this.tasks.length === 0) return 'None yet';
+                
+                const categories = {};
+                this.tasks.forEach(task => {
+                    const cat = task.category || 'personal';
+                    categories[cat] = (categories[cat] || 0) + 1;
+                });
+                
+                const mostUsed = Object.keys(categories).reduce((a, b) => 
+                    categories[a] > categories[b] ? a : b
+                );
+                
+                return mostUsed.charAt(0).toUpperCase() + mostUsed.slice(1);
+            }
+
+            showAIFeedback(message) {
+                // Create temporary feedback element
+                const feedback = document.createElement('div');
+                feedback.style.cssText = `
+                    position: fixed;
+                    top: 20px;
+                    right: 20px;
+                    background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+                    color: white;
+                    padding: 12px 20px;
+                    border-radius: 25px;
+                    font-size: 0.9rem;
+                    z-index: 1000;
+                    animation: slideIn 0.3s ease-out;
+                `;
+                feedback.textContent = message;
+                document.body.appendChild(feedback);
+
+                setTimeout(() => {
+                    feedback.remove();
+                }, 3000);
+            }
+
+            loadTaskHistory() {
+                try {
+                    const saved = localStorage.getItem('taskHistory');
+                    return saved ? JSON.parse(saved) : [];
+                } catch (error) {
+                    return [];
+                }
+            }
+
+            saveTaskHistory() {
+                try {
+                    // Keep only last 50 unique task texts for suggestions
+                    const uniqueTasks = [...new Set(this.tasks.map(t => t.text))].slice(0, 50);
+                    localStorage.setItem('taskHistory', JSON.stringify(uniqueTasks));
+                } catch (error) {
+                    console.error('Error saving task history:', error);
+                }
+            }
+
+            // Advanced AI Features
+            toggleNotifications() {
+                this.notificationsEnabled = !this.notificationsEnabled;
+                this.notificationsBtn.classList.toggle('active');
+                
+                if (this.notificationsEnabled) {
+                    this.requestNotificationPermission();
+                    this.startNotificationTimer();
+                    this.showNotification('🔔 Smart Reminders Enabled!', 'I\'ll notify you about upcoming and overdue tasks.');
+                } else {
+                    this.showNotification('🔕 Smart Reminders Disabled', 'Notifications turned off.');
+                }
+            }
+
+            async requestNotificationPermission() {
+                if ('Notification' in window) {
+                    const permission = await Notification.requestPermission();
+                    if (permission !== 'granted') {
+                        this.showNotification('⚠️ Notification Permission Denied', 'Please enable notifications in your browser settings.');
+                    }
+                }
+            }
+
+            startNotificationTimer() {
+                if (this.notificationTimer) clearInterval(this.notificationTimer);
+                
+                this.notificationTimer = setInterval(() => {
+                    if (!this.notificationsEnabled) return;
+                    
+                    const now = new Date();
+                    const today = now.toISOString().split('T')[0];
+                    
+                    // Check for overdue tasks
+                    const overdueTasks = this.tasks.filter(task => 
+                        !task.completed && 
+                        task.dueDate && 
+                        task.dueDate < today
+                    );
+                    
+                    if (overdueTasks.length > 0) {
+                        this.showBrowserNotification(
+                            `⚠️ ${overdueTasks.length} Overdue Tasks`,
+                            `You have ${overdueTasks.length} overdue tasks that need attention.`
+                        );
+                    }
+                }, 60000); // Check every minute
+            }
+
+            showBrowserNotification(title, body) {
+                if ('Notification' in window && Notification.permission === 'granted') {
+                    new Notification(title, {
+                        body: body,
+                        icon: '📝'
+                    });
+                }
+            }
+
+            toggleAnalytics() {
+                const isVisible = this.analyticsPanel.style.display !== 'none';
+                this.analyticsPanel.style.display = isVisible ? 'none' : 'block';
+                this.analyticsBtn.classList.toggle('active');
+                
+                if (!isVisible) {
+                    this.updateAnalytics();
+                    this.drawProductivityChart();
+                }
+            }
+
+            updateAnalytics() {
+                const completed = this.tasks.filter(t => t.completed).length;
+                const total = this.tasks.length;
+                const completionRate = total > 0 ? Math.round((completed / total) * 100) : 0;
+                
+                document.getElementById('completionRate').textContent = `${completionRate}%`;
+                document.getElementById('avgTasksPerDay').textContent = Math.round(this.tasks.length / 7);
+                document.getElementById('streakDays').textContent = `${this.calculateStreak()}d`;
+                
+                const tips = [
+                    `Your completion rate is ${completionRate}%. ${completionRate > 70 ? 'Excellent work!' : 'Try breaking tasks into smaller chunks.'}`,
+                    'Based on your patterns, try scheduling important tasks in the morning when you\'re most productive!',
+                    'Consider using the Pomodoro technique: 25 minutes focused work, 5 minute break.'
+                ];
+                
+                document.getElementById('productivityTip').textContent = tips[Math.floor(Math.random() * tips.length)];
+            }
+
+            calculateStreak() {
+                return Math.floor(Math.random() * 7) + 1; // Simulated streak
+            }
+
+            drawProductivityChart() {
+                const canvas = document.getElementById('productivityChart');
+                const ctx = canvas.getContext('2d');
+                
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                
+                // Simple productivity visualization
+                ctx.fillStyle = '#4facfe';
+                ctx.font = 'bold 16px Arial';
+                ctx.textAlign = 'center';
+                ctx.fillText('📊 Productivity Trends', canvas.width/2, canvas.height/2 - 20);
+                ctx.font = '14px Arial';
+                ctx.fillText('Visual charts coming soon!', canvas.width/2, canvas.height/2 + 10);
+                ctx.fillText('Your data is being analyzed...', canvas.width/2, canvas.height/2 + 30);
+            }
+
+            togglePredictions() {
+                const isVisible = this.predictiveSuggestions.style.display !== 'none';
+                this.predictiveSuggestions.style.display = isVisible ? 'none' : 'block';
+                this.predictionsBtn.classList.toggle('active');
+                
+                if (!isVisible) {
+                    this.generatePredictions();
+                }
+            }
+
+            generatePredictions() {
+                const predictions = [
+                    'Review weekly goals',
+                    'Plan tomorrow\'s priorities',
+                    'Check email and respond',
+                    'Take a 15-minute break',
+                    'Update project status',
+                    'Call important contacts',
+                    'Organize workspace'
+                ];
+                
+                this.displayPredictions(predictions.slice(0, 4));
+            }
+
+            displayPredictions(predictions) {
+                this.predictionsList.innerHTML = '';
+                predictions.forEach(prediction => {
+                    const item = document.createElement('div');
+                    item.className = 'prediction-item';
+                    item.textContent = prediction;
+                    item.addEventListener('click', () => {
+                        this.taskInput.value = prediction;
+                        this.predictiveSuggestions.style.display = 'none';
+                        this.taskInput.focus();
+                    });
+                    this.predictionsList.appendChild(item);
+                });
+            }
+
+            toggleVoice() {
+                this.voiceEnabled = !this.voiceEnabled;
+                this.voiceBtn.classList.toggle('active');
+                this.voiceControls.style.display = this.voiceEnabled ? 'flex' : 'none';
+                
+                if (this.voiceEnabled) {
+                    this.initializeVoiceRecognition();
+                    this.showNotification('🎤 Voice Controls Enabled!', 'Use the microphone to add tasks or ask the speaker to read them.');
+                } else {
+                    this.showNotification('🔇 Voice Controls Disabled', 'Voice features turned off.');
+                }
+            }
+
+            initializeVoiceRecognition() {
+                if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
+                    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+                    this.recognition = new SpeechRecognition();
+                    this.recognition.continuous = false;
+                    this.recognition.interimResults = false;
+                    
+                    this.recognition.onresult = (event) => {
+                        const transcript = event.results[0][0].transcript;
+                        this.taskInput.value = transcript;
+                        this.micBtn.classList.remove('recording');
+                        this.showNotification('🎤 Voice Captured!', `"${transcript}"`);
+                    };
+                    
+                    this.recognition.onerror = () => {
+                        this.micBtn.classList.remove('recording');
+                        this.showNotification('❌ Voice Error', 'Could not capture voice input.');
+                    };
+                }
+            }
+
+            startVoiceInput() {
+                if (this.recognition) {
+                    this.micBtn.classList.add('recording');
+                    this.recognition.start();
+                    this.showNotification('🎤 Listening...', 'Speak your task now.');
+                } else {
+                    this.showNotification('❌ Voice Not Supported', 'Your browser doesn\'t support voice recognition.');
+                }
+            }
+
+            readTasks() {
+                if (window.speechSynthesis) {
+                    const activeTasks = this.tasks.filter(t => !t.completed);
+                    let text = activeTasks.length === 0 ? 
+                        'You have no active tasks. Great job!' : 
+                        `You have ${activeTasks.length} active tasks. ${activeTasks.slice(0, 3).map(t => t.text).join('. ')}.`;
+                    
+                    const utterance = new SpeechSynthesisUtterance(text);
+                    window.speechSynthesis.speak(utterance);
+                } else {
+                    this.showNotification('❌ Speech Not Supported', 'Your browser doesn\'t support text-to-speech.');
+                }
+            }
+
+            smartFilter() {
+                const query = this.smartFilterInput.value.toLowerCase().trim();
+                if (!query) {
+                    this.currentFilter = 'all';
+                    this.renderTasks();
+                    return;
+                }
+                
+                let filteredTasks = this.tasks;
+                
+                if (query.includes('urgent') || query.includes('high')) {
+                    filteredTasks = filteredTasks.filter(t => t.priority === 'high');
+                }
+                if (query.includes('today')) {
+                    const today = new Date().toISOString().split('T')[0];
+                    filteredTasks = filteredTasks.filter(t => t.dueDate === today);
+                }
+                if (query.includes('overdue')) {
+                    const today = new Date().toISOString().split('T')[0];
+                    filteredTasks = filteredTasks.filter(t => 
+                        t.dueDate && t.dueDate < today && !t.completed
+                    );
+                }
+                
+                ['work', 'personal', 'shopping', 'health', 'study'].forEach(category => {
+                    if (query.includes(category)) {
+                        filteredTasks = filteredTasks.filter(t => t.category === category);
+                    }
+                });
+                
+                this.renderSmartFilteredTasks(filteredTasks);
+            }
+
+            renderSmartFilteredTasks(filteredTasks) {
+                this.tasksList.innerHTML = '';
+
+                if (filteredTasks.length === 0) {
+                    this.emptyState.style.display = 'block';
+                    this.emptyState.innerHTML = `
+                        <div style="font-size: 4rem; margin-bottom: 20px;">🔍</div>
+                        <h3>No matching tasks!</h3>
+                        <p>Try: "urgent work", "overdue tasks", "today"</p>
+                    `;
+                    return;
+                }
+
+                this.emptyState.style.display = 'none';
+                filteredTasks.forEach(task => {
+                    const taskItem = document.createElement('li');
+                    taskItem.className = `task-item priority-${task.priority || 'medium'}`;
+                    if (task.completed) taskItem.classList.add('completed');
+
+                    const dueDate = task.dueDate ? new Date(task.dueDate) : null;
+                    const isOverdue = dueDate && dueDate < new Date() && !task.completed;
+                    
+                    taskItem.innerHTML = `
+                        <div class="task-checkbox ${task.completed ? 'checked' : ''}" 
+                             onclick="taskManager.toggleTask(${task.id})">
+                            ${task.completed ? '✓' : ''}
+                        </div>
+                        <div class="task-content">
+                            <div class="task-text">${this.escapeHtml(task.text)}</div>
+                            <div class="task-meta">
+                                <span class="task-category">${task.category || 'personal'}</span>
+                                ${task.dueDate ? `<span class="task-due ${isOverdue ? 'overdue' : ''}">
+                                    Due: ${this.formatDate(task.dueDate)}
+                                </span>` : ''}
+                                <span class="task-priority ${task.priority || 'medium'}">
+                                    ${(task.priority || 'medium').toUpperCase()}
+                                </span>
+                            </div>
+                        </div>
+                        <div class="task-actions">
+                            <button class="action-btn edit-btn" onclick="taskManager.editTask(${task.id})">✏️</button>
+                            <button class="action-btn delete-btn" onclick="taskManager.deleteTask(${task.id})">🗑️</button>
+                        </div>
+                    `;
+                    this.tasksList.appendChild(taskItem);
+                });
+            }
+
+            exportToCalendar() {
+                const tasksWithDates = this.tasks.filter(t => t.dueDate && !t.completed);
+                
+                if (tasksWithDates.length === 0) {
+                    this.showNotification('📅 No Tasks to Export', 'Add due dates to your tasks first.');
+                    return;
+                }
+                
+                let icsContent = 'BEGIN:VCALENDAR\nVERSION:2.0\nPRODID:-//Task Manager//EN\n';
+                
+                tasksWithDates.forEach(task => {
+                    const date = new Date(task.dueDate);
+                    const dateStr = date.toISOString().replace(/[-:]/g, '').split('.')[0] + 'Z';
+                    
+                    icsContent += `BEGIN:VEVENT\n`;
+                    icsContent += `UID:${task.id}@taskmanager.com\n`;
+                    icsContent += `DTSTAMP:${dateStr}\n`;
+                    icsContent += `DTSTART:${dateStr}\n`;
+                    icsContent += `SUMMARY:${task.text}\n`;
+                    icsContent += `END:VEVENT\n`;
+                });
+                
+                icsContent += 'END:VCALENDAR';
+                
+                const blob = new Blob([icsContent], { type: 'text/calendar' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = 'tasks.ics';
+                a.click();
+                URL.revokeObjectURL(url);
+                
+                this.showNotification('📅 Calendar Export Complete!', `Exported ${tasksWithDates.length} tasks.`);
+            }
+
+            showNotification(title, message) {
+                const notification = document.createElement('div');
+                notification.className = 'notification-popup';
+                notification.innerHTML = `
+                    <div style="font-weight: bold; margin-bottom: 5px;">${title}</div>
+                    <div style="font-size: 0.9rem; color: #666;">${message}</div>
+                `;
+                
+                document.body.appendChild(notification);
+                setTimeout(() => notification.remove(), 4000);
+            }
+        }
+
+        // Initialize the app
+        const taskManager = new TaskManager();
+
+        // Add some helpful keyboard shortcuts
+        document.addEventListener('keydown', (e) => {
+            // Focus input when user starts typing (if not already focused)
+            if (e.key.length === 1 && document.activeElement !== taskManager.taskInput) {
+                taskManager.taskInput.focus();
+            }
+        });
+    </script>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9682e635f2d53b0a',t:'MTc1NDAyNTc2Mi4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
